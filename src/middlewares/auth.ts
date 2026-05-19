@@ -3,6 +3,12 @@ import jwt, { Secret } from 'jsonwebtoken';
 
 export const verifyToken = (req: Request, res: Response, next: NextFunction): void => {
   try {
+    // TEMPORARY: bypass auth entirely when DISABLE_AUTH=true.
+    // Set this in Vercel env vars while wiring up the admin demo flow; remove the env var to re-enable auth.
+    if (process.env.DISABLE_AUTH === 'true') {
+      (req as any).userId = 'dev';
+      return next();
+    }
     if (process.env.NODE_ENV !== 'production' && req.headers.authorization === 'Bearer dev-skip') {
       (req as any).userId = 'dev';
       return next();
