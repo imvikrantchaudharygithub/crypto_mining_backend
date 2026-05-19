@@ -1,14 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { Secret } from 'jsonwebtoken';
 
-export const verifyToken = (req: Request, res: Response, next: NextFunction): void => {
+// TEMPORARY: auth is fully disabled for the client demo phase.
+// Restore the JWT verification block below when re-enabling auth.
+export const verifyToken = (req: Request, _res: Response, next: NextFunction): void => {
+  (req as any).userId = 'dev';
+  next();
+};
+
+/* original implementation — restore when auth is needed again
+export const verifyTokenOriginal = (req: Request, res: Response, next: NextFunction): void => {
   try {
-    // TEMPORARY: bypass auth entirely when DISABLE_AUTH=true.
-    // Set this in Vercel env vars while wiring up the admin demo flow; remove the env var to re-enable auth.
-    if (process.env.DISABLE_AUTH === 'true') {
-      (req as any).userId = 'dev';
-      return next();
-    }
     if (process.env.NODE_ENV !== 'production' && req.headers.authorization === 'Bearer dev-skip') {
       (req as any).userId = 'dev';
       return next();
@@ -34,3 +36,4 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction): vo
     res.status(500).json({ message: 'Authentication error' });
   }
 };
+*/
