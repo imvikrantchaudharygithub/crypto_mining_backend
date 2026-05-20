@@ -22,6 +22,21 @@ import { createSoftwarePartner, getAllSoftwarePartners, updateSoftwarePartner, d
 import { createTicket, getTicketById, getTickets, getTicketByIdAdmin, updateTicket, addTicketStep, updateTicketStep, deleteTicketStep } from '../controllers/ticketController';
 import { uploadMedia, getMedia, deleteMedia } from '../controllers/mediaController';
 import { getAuditLogs } from '../controllers/auditController';
+import {
+  createExpense,
+  getExpenses,
+  getExpenseById,
+  updateExpense,
+  deleteExpense,
+  getExpenseStats,
+  getExpenseDashboardSummary,
+} from '../controllers/expenseController';
+import {
+  getExpenseCategories,
+  createExpenseCategory,
+  updateExpenseCategory,
+  deleteExpenseCategory,
+} from '../controllers/expenseCategoryController';
 
 const router = express.Router();
 
@@ -134,5 +149,20 @@ router.post('/admin/resend-invite',    verifyToken, requireRole('super-admin'), 
 
 /* ─────────── ADMIN — audit log ─────────── */
 router.get('/admin/audit-log', verifyToken, requireRole('super-admin'), getAuditLogs);
+
+/* ─────────── ADMIN — expenses ─────────── */
+router.post('/admin/create-expense',              verifyToken, requireAdmin, createExpense);
+router.get('/admin/get-expenses',                 verifyToken, requireAdmin, getExpenses);
+router.get('/admin/get-expense/:id',              verifyToken, requireAdmin, getExpenseById);
+router.put('/admin/update-expense/:id',           verifyToken, requireAdmin, updateExpense);
+router.post('/admin/delete-expense',              verifyToken, requireAdmin, deleteExpense);
+router.get('/admin/expense-stats',                verifyToken, requireAdmin, getExpenseStats);
+router.get('/admin/expense-dashboard-summary',    verifyToken, requireAdmin, getExpenseDashboardSummary);
+
+/* ─────────── ADMIN — expense categories ─────────── */
+router.get('/admin/get-expense-categories',       verifyToken, requireAdmin, getExpenseCategories);
+router.post('/admin/create-expense-category',     verifyToken, requireAdmin, createExpenseCategory);
+router.put('/admin/update-expense-category/:id',  verifyToken, requireAdmin, updateExpenseCategory);
+router.post('/admin/delete-expense-category',     verifyToken, requireAdmin, deleteExpenseCategory);
 
 export default router;

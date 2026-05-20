@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
+import { seedDefaultExpenseCategories } from '../controllers/expenseCategoryController';
 
 function loadEnv(): void {
   const candidates = [
@@ -70,6 +71,8 @@ const connectDB = async (): Promise<void> => {
 
   await mongoose.connect(uri, options);
   console.log('MongoDB connected');
+
+  seedDefaultExpenseCategories().catch((err) => console.error('Seed default expense categories failed:', err));
 };
 
 export default connectDB;
