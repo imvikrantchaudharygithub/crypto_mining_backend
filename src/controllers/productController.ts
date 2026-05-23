@@ -2,6 +2,16 @@ import { Request, Response } from 'express';
 import Product from '../models/product.model';
 import { uploadCloudinary } from '../services/cloudinaryService';
 
+function withComputedStatus(p: any) {
+  const obj = p && typeof p.toObject === 'function' ? p.toObject() : p;
+  if (!obj) return obj;
+  const computedStatus =
+    obj.stockStatusOverride === 'Coming Soon' ? 'Coming Soon'
+    : (obj.quantity ?? 0) > 0                  ? 'In Stock'
+    :                                            'Sold Out';
+  return { ...obj, computedStatus };
+}
+
 // Multer multipart parsing keeps every field as a string and does not expand
 // bracket notation. The admin sends JSON-stringified arrays for `boxItems`,
 // `electricalReqs` and individual `specs[<group>]` keys — normalise them here
@@ -45,6 +55,10 @@ function normaliseProductBody(raw: Record<string, any>): Record<string, any> {
   if (typeof body.price === 'string')         body.price = Number(body.price) || 0;
   if (typeof body.silencerPrice === 'string') body.silencerPrice = Number(body.silencerPrice) || 0;
   if (typeof body.sortOrder === 'string')     body.sortOrder = Number(body.sortOrder) || 0;
+
+  if (body.stockStatusOverride === '' || body.stockStatusOverride === 'null') {
+    body.stockStatusOverride = null;
+  }
 
   return body;
 }
@@ -112,7 +126,7 @@ export const getAllProducts = async (req: Request, res: Response): Promise<void>
     else if (!req.query.status) filter.status = 'active';
 
     const products = await Product.find(filter).sort({ sortOrder: 1, createdAt: -1 });
-    res.status(200).json({ success: true, products });
+    res.status(200).json({ success: true, products: products.map(withComputedStatus) });
   } catch (error) {
     console.error('Error in getAllProducts:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch products', error: error instanceof Error ? error.message : 'Unknown error' });
@@ -123,7 +137,7 @@ export const getProductBySlug = async (req: Request, res: Response): Promise<voi
   try {
     const product = await Product.findOne({ slug: req.params.slug, status: 'active' });
     if (!product) { res.status(404).json({ message: 'Product not found' }); return; }
-    res.status(200).json({ success: true, product });
+    res.status(200).json({ success: true, product: withComputedStatus(product) });
   } catch (error) {
     console.error('Error in getProductBySlug:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch product', error: error instanceof Error ? error.message : 'Unknown error' });
