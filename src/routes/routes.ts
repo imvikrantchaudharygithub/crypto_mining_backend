@@ -9,6 +9,15 @@ import { createAdminUser, getAdminUsers, getAdminUserById, updateAdminUser, deac
 import { getHomePageData, updateHomePage } from '../controllers/homeController';
 import { getSiteSettings, updateSiteSettings } from '../controllers/siteSettingsController';
 import { createProduct, getAllProducts, getProductBySlug, updateProduct, deleteProduct, reorderProducts, searchProducts } from '../controllers/productController';
+import {
+  createStockMovement,
+  getStockMovements,
+  getStockMovementsByProduct,
+  getInventorySummary,
+  getInventorySummaryByProduct,
+  undoStockMovement,
+  exportStockMovementsCsv,
+} from '../controllers/stockController';
 import { createPlan, getAllPlans, getPlanBySlug, updatePlan, deletePlan, reorderPlans } from '../controllers/planController';
 import { getProfitabilityPage, updateProfitabilityPage } from '../controllers/profitabilityController';
 import { getContactPage, updateContactPage } from '../controllers/contactPageController';
@@ -64,6 +73,15 @@ router.put('/edit-product/:id',    verifyToken, requireAdmin, productMemory, upd
 router.post('/delete-product',     verifyToken, requireAdmin, deleteProduct);
 router.post('/reorder-products',   verifyToken, requireAdmin, reorderProducts);
 router.post('/search-products',    searchProducts as RequestHandler);
+
+/* ─────────── INVENTORY / STOCK MOVEMENTS ─────────── */
+router.post('/create-stock-movement',           verifyToken, requireRole('super-admin', 'editor'), createStockMovement);
+router.get('/get-stock-movements',              verifyToken, requireAdmin, getStockMovements);
+router.get('/get-stock-movements/:productId',   verifyToken, requireAdmin, getStockMovementsByProduct);
+router.get('/get-inventory-summary',            verifyToken, requireAdmin, getInventorySummary);
+router.get('/get-inventory-summary/:productId', verifyToken, requireAdmin, getInventorySummaryByProduct);
+router.post('/undo-stock-movement',             verifyToken, requireRole('super-admin'), undoStockMovement);
+router.get('/export-stock-movements.csv',       verifyToken, requireRole('super-admin'), exportStockMovementsCsv);
 
 /* ─────────── PLANS ─────────── */
 router.post('/create-plan',    verifyToken, requireAdmin, createPlan);
