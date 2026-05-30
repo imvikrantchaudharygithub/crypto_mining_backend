@@ -15,11 +15,11 @@ const TicketSchema: Schema = new Schema(
     attachments: [{ url: String, name: String, size: Number, type: String }],
     status: {
       type: String,
-      enum: ['open', 'in-progress', 'awaiting-customer', 'resolved', 'closed'],
+      enum: ['open', 'in-progress', 'investigating', 'awaiting-customer', 'resolved', 'closed'],
       default: 'open',
     },
     eta: { type: Date },
-    assignedTo: { type: Schema.Types.ObjectId, ref: 'User' },
+    assignedTo: { type: String },
     steps: [
       {
         label: String,
@@ -28,7 +28,7 @@ const TicketSchema: Schema = new Schema(
         occurredAt: Date,
         done: { type: Boolean, default: false },
         active: { type: Boolean, default: false },
-        addedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+        addedBy: { type: String },
       },
     ],
   },
